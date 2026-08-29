@@ -41,13 +41,11 @@
         .btn-sub-num { background: #ef4444; color: #fff; border: none; padding: 8px 0; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; }
         .btn-use-voucher { background: #eab308; color: #000; width: 100%; margin-top: 14px; padding: 12px; border: none; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; }
     </style>
-    <!-- Firebase SDK (ใช้เวอร์ชัน 8 ที่ compatible กับโครงสร้างโค้ดเดิมของคุณ) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
 
-<!-- หน้าต่างล็อกอิน -->
 <div id="authModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 99999;">
   <div style="background: #1e1e1e; padding: 30px; border-radius: 16px; text-align: center; width: 320px; border: 1px solid #444; box-shadow: 0 10px 25px rgba(0,0,0,0.8);">
     <h3 style="color: #f59e0b; margin-bottom: 15px; font-size: 20px;">🔒 ล็อกอินหลังร้าน</h3>
@@ -106,7 +104,6 @@
 </div>
 
 <script>
-    // 🔑 รหัสผ่านหลังร้าน
     const ADMIN_SECRET_CODE = "081218";
 
     function checkAdminPassword() {
@@ -125,9 +122,9 @@
         }
     });
 
-    // 🔗 ตั้งค่าเชื่อมต่อ Firebase Realtime Database ของคุณ (iphone4546)
+    // แก้ไข URL ฐานข้อมูลให้ตรงกับหน้าลูกค้า (wela-phak-cafe)
     const firebaseConfig = { 
-        databaseURL: "https://iphone4546-default-rtdb.asia-southeast1.firebasedatabase.app/" 
+        databaseURL: "https://wela-phak-cafe-default-rtdb.asia-southeast1.firebasedatabase.app/" 
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
@@ -203,5 +200,5 @@
         });
     }
 </script>
-</body>
+</body>  
 </html>
