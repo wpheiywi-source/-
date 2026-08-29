@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velapak Kitchen - ระบบจัดการหลังร้าน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Kanit', sans-serif; margin: 0; padding: 0; }
+        body { background-color: #121824; color: #e2e8f0; padding: 24px; }
+        
+        .header-title { text-align: center; color: #facc15; font-size: 26px; font-weight: 600; margin-bottom: 24px; }
+        
+        .admin-card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .admin-card h2 { font-size: 18px; color: #38bdf8; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .form-grid input, .form-grid select {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: white;
+            font-size: 15px;
+            outline: none;
+        }
+        .file-upload-btn {
+            background: #334155;
+            color: #94a3b8;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px dashed #64748b;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-add { background: #22c55e; color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 15px; }
+
+        .menu-manage-list { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+        .menu-tag { background: #334155; padding: 6px 14px; border-radius: 20px; display: flex; align-items: center; gap: 10px; font-size: 14px; border: 1px solid #475569; }
+        .btn-del-menu { background: #ef4444; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; }
+
+        .order-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .order-card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 18px;
+            border-left: 6px solid #facc15;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .order-header { display: flex; justify-content: space-between; font-size: 18px; font-weight: 600; color: #38bdf8; border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 12px; }
+        .order-items { font-size: 16px; white-space: pre-line; line-height: 1.6; margin-bottom: 12px; color: #f1f5f9; }
+        .order-total { font-size: 16px; font-weight: 600; color: #4ade80; margin-bottom: 10px; }
+        .order-note { font-size: 14px; color: #fde047; background: #0f172a; padding: 8px 12px; border-radius: 8px; margin-bottom: 16px; border: 1px dashed #475569; }
+        
+        .btn-delete { width: 100%; background: #0284c7; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 15px; cursor: pointer; font-weight: 600; }
+        .empty-msg { text-align: center; font-size: 16px; color: #64748b; width: 100%; grid-column: 1 / -1; padding: 40px 0; }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+
+<div class="admin-card">
+    <h2>➕ จัดการรายการเมนู (Velapak)</h2>
+    <form id="addMenuForm">
+        <div class="form-grid">
+            <input type="text" id="menuName" placeholder="ชื่อเมนู" required>
+            <input type="number" id="menuPrice" placeholder="ราคา (บาท)" required>
+            <select id="menuCategory" required>
+                <option value="" disabled selected>เลือกหมวดหมู่</option>
+                <option value="ชา">ชา</option>
+                <option value="กาแฟ">กาแฟ</option>
+                <option value="นม">นม</option>
+                <option value="มัทฉะ">มัทฉะ</option>
+                <option value="เค้กชิ้น">เค้กชิ้น</option>
+                <option value="โกโก้">โกโก้</option>
+                <option value="อื่นๆ">อื่นๆ</option>
+            </select>
+            <label class="file-upload-btn">
+                📸 <span id="fileNameDisplay">เลือกรูปภาพ</span>
+                <input type="file" id="menuImgFile" accept="image/*" style="display: none;">
+            </label>
+        </div>
+        <button type="submit" class="btn-add">เพิ่มเมนูใหม่</button>
+    </form>
+    
+    <div style="margin-top: 18px; font-size: 14px; color: #94a3b8;">รายการเมนูปัจจุบัน:</div>
+    <div class="menu-manage-list" id="menuManageList"></div>
+</div>
+
+<h1 class="header-title">🍳 รายการออเดอร์ห้องครัว</h1>
+<div class="order-grid" id="orderList">
+    <div class="empty-msg">ยังไม่มีออเดอร์เข้ามา...</div>
+</div>
+
+<script>
+    const firebaseConfig = { databaseURL: "https://wela-phak-cafe-default-rtdb.asia-southeast1.firebasedatabase.app/" };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    let base64Image = "";
+
+    document.getElementById('menuImgFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            document.getElementById('fileNameDisplay').innerText = file.name;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 400;
+                    const scaleFactor = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleFactor;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    base64Image = canvas.toDataURL('image/jpeg', 0.7);
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('addMenuForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('menuName').value;
+        const price = parseFloat(document.getElementById('menuPrice').value);
+        const category = document.getElementById('menuCategory').value;
+
+        database.ref('menus').push({
+            name: name,
+            price: price,
+            category: category,
+            imageUrl: base64Image || ""
+        }).then(() => {
+            document.getElementById('addMenuForm').reset();
+            document.getElementById('fileNameDisplay').innerText = "เลือกรูปภาพ";
+            base64Image = "";
+            alert("เพิ่มเมนูเรียบร้อยแล้ว!");
+        });
+    });
+
+    database.ref('menus').on('value', (snapshot) => {
+        const container = document.getElementById('menuManageList');
+        container.innerHTML = '';
+        if (!snapshot.exists()) {
+            container.innerHTML = '<span style="color:#64748b;">ยังไม่มีเมนูในระบบ</span>';
+            return;
+        }
+        snapshot.forEach((child) => {
+            const id = child.key;
+            const data = child.val();
+            const tag = document.createElement('div');
+            tag.className = 'menu-tag';
+            tag.innerHTML = `
+                <span>[${data.category || 'อื่นๆ'}] ${data.name} (${data.price}บ.)</span>
+                <button class="btn-del-menu" onclick="deleteMenu('${id}')">×</button>
+            `;
+            container.appendChild(tag);
+        });
+    });
+
+    function deleteMenu(id) {
+        if (confirm('ต้องการลบเมนูนีัหรือไม่?')) database.ref('menus/' + id).remove();
+    }
+
+    database.ref('orders').on('value', (snapshot) => {
+        const container = document.getElementById('orderList');
+        container.innerHTML = '';
+        if (!snapshot.exists()) {
+            container.innerHTML = '<div class="empty-msg">ยังไม่มีออเดอร์เข้ามา...</div>';
+            return;
+        }
+        snapshot.forEach((childSnapshot) => {
+            const orderId = childSnapshot.key;
+            const data = childSnapshot.val();
+            const card = document.createElement('div');
+            card.className = 'order-card';
+            card.innerHTML = `
+                <div>
+                    <div class="order-header">
+                        <span>📌 ${data.tableNo}</span>
+                        <span style="font-size:14px; color:#94a3b8;">🕒 ${data.timestamp || ''}</span>
+                    </div>
+                    <div class="order-items">${data.foodItems}</div>
+                </div>
+                <div>
+                    ${data.totalPrice ? `<div class="order-total">💰 ยอดรวม: ${data.totalPrice} บาท</div>` : ''}
+                    ${data.note ? `<div class="order-note">📝 หมายเหตุ: ${data.note}</div>` : ''}
+                    <button class="btn-delete" onclick="deleteOrder('${orderId}')">✅ ทำเสร็จแล้ว / ลบออเดอร์</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    });
+
+    function deleteOrder(orderId) {
+        if (confirm('ยืนยันลบออเดอร์นี้ (ทำเสร็จแล้ว)?')) database.ref('orders/' + orderId).remove();
+    }
+</script>
+
+</body>
+</html>

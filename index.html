@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velapak - สั่งอาหาร & เครื่องดื่ม</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #e8f5e9;
+            --accent: #ff6f00;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --text-sub: #7f8c8d;
+            --shadow: 0 8px 24px rgba(0,0,0,0.06);
+        }
+
+        * { box-sizing: border-box; font-family: 'Kanit', sans-serif; margin: 0; padding: 0; }
+        body { background-color: var(--bg); color: var(--text-main); padding-bottom: 110px; }
+
+        .header {
+            background: linear-gradient(135deg, #1b5e20, #388e3c);
+            color: white;
+            padding: 24px 20px 36px;
+            text-align: center;
+            border-bottom-left-radius: 28px;
+            border-bottom-right-radius: 28px;
+            box-shadow: 0 4px 15px rgba(27, 94, 32, 0.2);
+        }
+        .header h1 { font-size: 26px; font-weight: 700; }
+        .header p { font-size: 13px; opacity: 0.9; font-weight: 300; margin-top: 2px; }
+
+        .container { max-width: 500px; margin: -18px auto 0; padding: 0 16px; }
+
+        .card-info {
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+        }
+        .form-group label { display: block; font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            background: #fafafa;
+        }
+        .form-group input:focus { border-color: var(--primary); background: #fff; }
+
+        /* Category Filter Tabs */
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 6px 2px 12px;
+            scrollbar-width: none;
+        }
+        .category-tabs::-webkit-scrollbar { display: none; }
+        .tab-btn {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            color: var(--text-main);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.25);
+        }
+
+        .menu-grid { display: flex; flex-direction: column; gap: 14px; }
+        .menu-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .menu-img {
+            width: 75px;
+            height: 75px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: #eee;
+            flex-shrink: 0;
+        }
+        .menu-details { flex-grow: 1; }
+        .menu-title { font-size: 15px; font-weight: 600; color: var(--text-main); }
+        .menu-price { font-size: 14px; font-weight: 600; color: var(--primary); margin-top: 4px; }
+
+        .qty-box {
+            display: flex;
+            align-items: center;
+            background: #f1f3f5;
+            border-radius: 20px;
+            padding: 4px;
+            gap: 8px;
+        }
+        .btn-qty {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            color: var(--text-main);
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-qty.plus { background: var(--primary); color: white; }
+        .qty-num { font-size: 14px; font-weight: 600; min-width: 16px; text-align: center; }
+
+        .note-card { background: var(--card-bg); border-radius: 16px; padding: 14px; box-shadow: var(--shadow); margin-top: 16px; }
+
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 500px;
+            margin: 0 auto;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            z-index: 99;
+        }
+        .total-val { font-size: 20px; font-weight: 700; color: var(--primary); }
+        .btn-submit {
+            background: linear-gradient(135deg, #2e7d32, #1b5e20);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+        }
+        .empty-menu { text-align: center; color: var(--text-sub); padding: 30px 0; }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+
+<div class="header">
+    <h1>Velapak Cafe ☕</h1>
+    <p>สั่งง่าย สดใหม่ ใส่ใจทุกแก้ว</p>
+</div>
+
+<div class="container">
+    <form id="orderForm">
+        <div class="card-info">
+            <div class="form-group">
+                <label for="tableNo">📍 โต๊ะ / ชื่อผู้สั่ง</label>
+                <input type="text" id="tableNo" required placeholder="ระบุเลขโต๊ะ เช่น โต๊ะ 3">
+            </div>
+        </div>
+
+        <div class="category-tabs" id="categoryTabs">
+            <button type="button" class="tab-btn active" onclick="filterCategory('ทั้งหมด')">ทั้งหมด</button>
+            <button type="button" class="tab-btn" onclick="filterCategory('ชา')">ชา</button>
+            <button type="button" class="tab-btn" onclick="filterCategory('กาแฟ')">กาแฟ</button>
+            <button type="button" class="tab-btn" onclick="filterCategory('นม')">นม</button>
+            <button type="button" class="tab-btn" onclick="filterCategory('มัทฉะ')">มัทฉะ</button>
+            <button type="button" class="tab-btn" onclick="filterCategory('เค้กชิ้น')">เค้กชิ้น</button>
+            <button type="button" class="tab-btn" onclick="filterCategory('โกโก้')">โกโก้</button>
+            <button type="button" class="tab-btn" onclick="filterCategory('อื่นๆ')">อื่นๆ</button>
+        </div>
+
+        <div class="menu-grid" id="menuContainer">
+            <div class="empty-menu">กำลังโหลดเมนู...</div>
+        </div>
+
+        <div class="note-card">
+            <div class="form-group">
+                <label for="note">📝 หมายเหตุเพิ่มเติม</label>
+                <input type="text" id="note" placeholder="เช่น หวานน้อย 50%, แยกน้ำแข็ง">
+            </div>
+        </div>
+
+        <div class="bottom-bar">
+            <div>
+                <span style="font-size:12px; color:var(--text-sub);">ราคารวม</span><br>
+                <span class="total-val"><span id="totalAmount">0</span> ฿</span>
+            </div>
+            <button type="submit" class="btn-submit">สั่งอาหาร ✨</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    const firebaseConfig = { databaseURL: "https://wela-phak-cafe-default-rtdb.asia-southeast1.firebasedatabase.app/" };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    let selectedItems = {};
+    let menuDataList = {};
+    let currentCategory = 'ทั้งหมด';
+    const defaultImg = "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&q=80&w=300";
+
+    database.ref('menus').on('value', (snapshot) => {
+        menuDataList = {};
+        if (snapshot.exists()) {
+            snapshot.forEach((child) => {
+                menuDataList[child.key] = child.val();
+            });
+        }
+        renderMenu();
+    });
+
+    function filterCategory(cat) {
+        currentCategory = cat;
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.innerText === cat);
+        });
+        renderMenu();
+    }
+
+    function renderMenu() {
+        const container = document.getElementById('menuContainer');
+        container.innerHTML = '';
+        let count = 0;
+
+        for (const id in menuDataList) {
+            const data = menuDataList[id];
+            const itemCat = data.category || 'อื่นๆ';
+
+            if (currentCategory !== 'ทั้งหมด' && itemCat !== currentCategory) continue;
+            count++;
+
+            const qty = selectedItems[id] || 0;
+            const div = document.createElement('div');
+            div.className = 'menu-card';
+            div.innerHTML = `
+                <img src="${data.imageUrl || defaultImg}" class="menu-img" alt="${data.name}" onerror="this.src='${defaultImg}'">
+                <div class="menu-details">
+                    <div class="menu-title">${data.name}</div>
+                    <div class="menu-price">${data.price} บาท</div>
+                </div>
+                <div class="qty-box">
+                    <button type="button" class="btn-qty" onclick="updateQty('${id}', -1)">-</button>
+                    <span class="qty-num" id="qty-${id}">${qty}</span>
+                    <button type="button" class="btn-qty plus" onclick="updateQty('${id}', 1)">+</button>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        if (count === 0) {
+            container.innerHTML = '<div class="empty-menu">ไม่มีรายการในหมวดหมู่นี้</div>';
+        }
+        calculateTotal();
+    }
+
+    function updateQty(id, change) {
+        const currentQty = selectedItems[id] || 0;
+        const newQty = Math.max(0, currentQty + change);
+        if (newQty === 0) delete selectedItems[id];
+        else selectedItems[id] = newQty;
+
+        const el = document.getElementById(`qty-${id}`);
+        if (el) el.innerText = newQty;
+        calculateTotal();
+    }
+
+    function calculateTotal() {
+        let total = 0;
+        for (const id in selectedItems) {
+            const qty = selectedItems[id];
+            const price = menuDataList[id] ? menuDataList[id].price : 0;
+            total += qty * price;
+        }
+        document.getElementById('totalAmount').innerText = total;
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const tableNo = document.getElementById('tableNo').value;
+        const note = document.getElementById('note').value;
+        let orderSummary = [];
+        let total = 0;
+
+        for (const id in selectedItems) {
+            const qty = selectedItems[id];
+            if (qty > 0 && menuDataList[id]) {
+                const itemTotal = qty * menuDataList[id].price;
+                orderSummary.push(`${menuDataList[id].name} x ${qty} (${itemTotal}บ.)`);
+                total += itemTotal;
+            }
+        }
+
+        if (orderSummary.length === 0) {
+            alert('กรุณาเลือกรายการอาหารอย่างน้อย 1 รายการครับ');
+            return;
+        }
+
+        database.ref('orders').push({
+            tableNo: tableNo,
+            foodItems: orderSummary.join('\n'),
+            totalPrice: total,
+            note: note,
+            timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+        }).then(() => {
+            alert('ส่งออเดอร์เรียบร้อยแล้วครับ!');
+            document.getElementById('orderForm').reset();
+            selectedItems = {};
+            renderMenu();
+        });
+    });
+</script>
+
+</body>
+</html>
